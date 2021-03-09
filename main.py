@@ -39,10 +39,17 @@ class MovieForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     year = IntegerField('Year', validators=[DataRequired()])
     description = StringField('Description', validators=[DataRequired()])
-    rating = FloatField('Rating', validators=[DataRequired()])
-    ranking = IntegerField('Ranking', validators=[DataRequired()])
-    review = StringField('Review', validators=[DataRequired()])
+    rating = FloatField('Personal Rating Out of 10 e.g. 7.5', validators=[DataRequired()])
+    ranking = IntegerField('Personal Ranking', validators=[DataRequired()])
+    review = StringField('Personal Review', validators=[DataRequired()])
     image = StringField('Image Url', validators=[DataRequired(), url()])
+    submit = SubmitField('Submit')
+
+
+class RateMovieForm(FlaskForm):
+    rating = FloatField('Personal Rating Out of 10 e.g. 7.5', validators=[DataRequired()])
+    ranking = IntegerField('Personal Ranking', validators=[DataRequired()])
+    review = StringField('Personal Review', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 
@@ -70,9 +77,17 @@ def add():
     return render_template('add.html', form=form)
 
 
-@app.route('/edit')
-def edit():
-    return render_template('edit.html')
+@app.route('/edit/<int:movie_id>', methods=["GET", "POST"])
+def edit(movie_id):
+    form = RateMovieForm()
+    movie_edit = Movies.query.get(movie_id)
+    if request.method == 'POST':
+        movie_edit.rating = request.form['rating']
+        movie_edit.ranking = request.form['ranking']
+        movie_edit.review = request.form['review']
+        db.session.commit()
+        return redirect(url_for('index'))
+    return render_template('edit.html', form=form, movie=movie_edit)
 
 
 if __name__ == '__main__':
