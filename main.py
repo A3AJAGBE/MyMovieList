@@ -48,14 +48,17 @@ class MovieForm(FlaskForm):
 
 class RateMovieForm(FlaskForm):
     rating = FloatField('Personal Rating Out of 10 e.g. 7.5', validators=[DataRequired()])
-    ranking = IntegerField('Personal Ranking', validators=[DataRequired()])
     review = StringField('Personal Review', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 
 @app.route('/')
 def index():
-    all_movies = Movies.query.all()
+    all_movies = Movies.query.order_by(Movies.rating).all()
+
+    for i in range(len(all_movies)):
+        # This line gives each movie a new ranking reversed from their order in all_movies
+        all_movies[i].ranking = len(all_movies) - i
     return render_template('index.html', movies=all_movies)
 
 
@@ -83,7 +86,6 @@ def edit(movie_id):
     movie_edit = Movies.query.get(movie_id)
     if request.method == 'POST':
         movie_edit.rating = request.form['rating']
-        movie_edit.ranking = request.form['ranking']
         movie_edit.review = request.form['review']
         db.session.commit()
         return redirect(url_for('index'))
