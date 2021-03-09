@@ -38,7 +38,7 @@ db.create_all()
 class MovieForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     year = IntegerField('Year', validators=[DataRequired()])
-    desc = StringField('Summary', validators=[DataRequired()])
+    description = StringField('Description', validators=[DataRequired()])
     rating = FloatField('Rating', validators=[DataRequired()])
     ranking = IntegerField('Ranking', validators=[DataRequired()])
     review = StringField('Review', validators=[DataRequired()])
@@ -48,7 +48,8 @@ class MovieForm(FlaskForm):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    all_movies = Movies.query.all()
+    return render_template('index.html', movies=all_movies)
 
 
 @app.route('/add', methods=["GET", "POST"])
@@ -58,11 +59,11 @@ def add():
         new_movie = Movies(
             title=request.form['title'],
             year=request.form['year'],
-            desc=request.form['desc'],
+            description=request.form['description'],
             rating=request.form['rating'],
             ranking=request.form['ranking'],
             review=request.form['review'],
-            image_url=request.form['image_url'])
+            image_url=request.form['image'])
         db.session.add(new_movie)
         db.session.commit()
         return redirect(url_for('index'))
